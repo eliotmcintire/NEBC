@@ -1,0 +1,4 @@
+"file" "checksum" "filesize" "algorithm"
+"SpeciesPresentInCanadianForests.tif" "a456b9ce33d7c9e3" "1607909" "xxhash64"
+"SpeciesPresentInCanadianForests.tif.aux.xml" "4e171f65610a4df0" "36530" "xxhash64"
+"SpeciesPresentInCanadianForests.zip" "203a3dd4e79b1958" "1451902" "xxhash64"
