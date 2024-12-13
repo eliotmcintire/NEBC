@@ -1,7 +1,7 @@
 .Rproj.user
 cache
 inputs
-outputs/Skeena
+outputs
 .Rhistory
 .Rdata
 .RData
@@ -12,3 +12,8 @@ outputs/Skeena
 .httr-oauth
 .DS_Store
 .quarto
+
+*.png
+*.tif
+*.zip
+*.xml
