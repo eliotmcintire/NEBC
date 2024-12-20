@@ -6,7 +6,7 @@ currentName <- "Taiga" #toggle between Skeena and Taiga
 if (currentName == "Taiga") {
   ecoprovince <- c("4.3")
   studyAreaPSPprov <- c("4.3", "12.3", "14.1", "9.1") #this is a weird combination
-  snll_thresh = 3100 # 4799 after running the estimator
+  snll_thresh = 3100 # 4822 after running the estimator
 } else {
   ecoprovince <- "14.1"
   studyAreaPSPprov <- c("14.1", "14.2", "14.3", "14.4")
@@ -41,7 +41,7 @@ inSim <- SpaDES.project::setupProject(
               "PredictiveEcology/fireSense_IgnitionFit@biomassFuel",
               "PredictiveEcology/canClimateData@improveCache1"
   ),
-  packages = c("PredictiveEcology/reproducible@AI", "PredictiveEcology/SpaDES.core@box (HEAD)"), # needed for the functions in
+  packages = c("PredictiveEcology/reproducible@AI (HEAD)", "PredictiveEcology/SpaDES.core@box (HEAD)"), # needed for the functions in
   # overwrite = TRUE,
   require = c("reproducible"), # for Cache used in pipe below
   options = options(gargle_oauth_email = "predictiveecology@gmail.com",
@@ -63,7 +63,6 @@ inSim <- SpaDES.project::setupProject(
                     reproducible.cloudFolderID = "1oNGYVAV3goXfSzD1dziotKGCdO8P_iV9",
                     reproducible.showSimilar = TRUE,
                     reproducible.showSimilarDepth = 8,
-
                     # Eliot during development
                     fireSenseUtils.runTests = FALSE,
                     reproducible.memoisePersist = TRUE # sets the memoise location to .GlobalEnv; persists through a `load_all`
@@ -109,7 +108,6 @@ inSim <- SpaDES.project::setupProject(
     )
   },
   #params last because one of them depends on sppEquiv fuel class names
-
   climateVariables = list(
     historical_CMDsm = list(
       vars = "historical_CMD_sm",
@@ -200,6 +198,7 @@ inSim <- SpaDES.project::setupProject(
 #
 # pkgload::load_all("~/GitHub/LandR/");
 # pkgload::load_all("~/GitHub/climateData/");
+# pkgload::load_all("~/GitHub/fireSenseUtils/");
 # pkgload::load_all("~/GitHub/clusters/");
 # devtools::document("~/GitHub/fireSenseUtils/");
 # clearCache(ask = F)
@@ -229,6 +228,10 @@ if (FALSE) {
 
   outSims <- restartSpades()
 }
+# debug(.runEvent)
+#pkgload::load_all("~/GitHub/reproducible/");
+#pkgload::load_all("~/GitHub/SpaDES.core/");
+outSim <- do.call(what = SpaDES.core::simInitAndSpades, args = inSim)
 
 if (FALSE) {
   pkgload::load_all("~/GitHub/fireSenseUtils/");
