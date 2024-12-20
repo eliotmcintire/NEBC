@@ -5,7 +5,6 @@ SaveWorkspace: No
 AlwaysSaveHistory: Default
 
 EnableCodeIndexing: Yes
-<<<<<<< HEAD
 UseSpacesForTab: Yes
 NumSpacesForTab: 2
 Encoding: UTF-8
@@ -16,11 +15,3 @@ LaTeX: pdfLaTeX
 AutoAppendNewline: Yes
 StripTrailingWhitespace: Yes
 LineEndingConversion: Posix
-=======
-Encoding: UTF-8
-
-AutoAppendNewline: Yes
-StripTrailingWhitespace: Yes
-LineEndingConversion: Posix
-
->>>>>>> 54d6ebb5e983101954a8112e635f4470e321b90b
