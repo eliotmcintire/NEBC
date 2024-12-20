@@ -1,12 +1,12 @@
 # Install or update SpaDES.project & Require
 source("https://raw.githubusercontent.com/PredictiveEcology/pemisc/refs/heads/development/R/getOrUpdatePkg.R")
-getOrUpdatePkg(c("Require", "SpaDES.project"), c("1.0.1.9002", "0.1.1.9004")) # only install/update if required
+getOrUpdatePkg(c("Require", "SpaDES.project"), c("1.0.1.9002", "0.1.1.9005")) # only install/update if required
 
 currentName <- "Taiga" #toggle between Skeena and Taiga
 if (currentName == "Taiga") {
   ecoprovince <- c("4.3")
   studyAreaPSPprov <- c("4.3", "12.3", "14.1", "9.1") #this is a weird combination
-  snll_thresh = 3100 # 4822 after running the estimator
+  snll_thresh = 3100 # 4799 after running the estimator
 } else {
   ecoprovince <- "14.1"
   studyAreaPSPprov <- c("14.1", "14.2", "14.3", "14.4")
@@ -22,9 +22,14 @@ if (currentName == "Taiga") {
 #                           token = readRDS("googlemagic.rds"))
 # }
 
+# pkgload::load_all("~/GitHub/SpaDES.project/")
+# pkgload::load_all("~/GitHub/reproducible/");
+# pkgload::load_all("~/GitHub/SpaDES.core/");
+
 #TODO change the script so that ecoprovinceNum is consistently named in functinos
 inSim <- SpaDES.project::setupProject(
-  useGit=  FALSE, #"eliotmcintire",
+  Restart = TRUE,
+  useGit= TRUE, #"eliotmcintire",
   paths = list(projectPath = "~/GitHub/NEBC",
                cachePath = "cache",
                outputPath = file.path("outputs", currentName)
@@ -36,9 +41,12 @@ inSim <- SpaDES.project::setupProject(
               "PredictiveEcology/fireSense_IgnitionFit@biomassFuel",
               "PredictiveEcology/canClimateData@improveCache1"
   ),
-  require = c("reproducible"), # for Cache
+  packages = c("PredictiveEcology/reproducible@AI", "PredictiveEcology/SpaDES.core@box (HEAD)"), # needed for the functions in
+  # overwrite = TRUE,
+  require = c("reproducible"), # for Cache used in pipe below
   options = options(gargle_oauth_email = "predictiveecology@gmail.com",
                     spades.allowInitDuringSimInit = TRUE,
+                    repos = unique(c("predictiveecology.r-universe.dev", getOption("repos"))),
                     spades.moduleCodeChecks = FALSE,
                     Require.cloneFrom = Sys.getenv("R_LIBS_USER"),
                     # 'reproducible.gdalwarp' = TRUE,
@@ -47,13 +55,14 @@ inSim <- SpaDES.project::setupProject(
                     SpaDES.project.fast = FALSE,
                     reproducible.shapefileRead = "terra::vect",
                     spades.recoveryMode = 1,
+                    spades.useBox = FALSE,
                     reproducible.useDBI = FALSE,
                     reproducible.overwrite = TRUE,
                     reproducible.inputPaths = "~/data",
                     # reproducible.useCache = "devMode",
                     reproducible.cloudFolderID = "1oNGYVAV3goXfSzD1dziotKGCdO8P_iV9",
                     reproducible.showSimilar = TRUE,
-                    reproducible.showSimilarDepth = 6,
+                    reproducible.showSimilarDepth = 8,
 
                     # Eliot during development
                     fireSenseUtils.runTests = FALSE,
@@ -67,8 +76,9 @@ inSim <- SpaDES.project::setupProject(
                                  spread = "CMDsm"),
   sppEquiv = {
     makeSppEquiv(ecoprovinceNum = ecoprovince) |> Cache()
-    },
+  },
   #update mutuallyExlcusive Cols
+  # setupSAandRTMfun = setupSAandRTM,
   sa = setupSAandRTM(ecoprovinceNum = ecoprovince) |> Cache(),
   studyArea = sa$studyArea,
   rasterToMatch = sa$rasterToMatch,
@@ -77,8 +87,8 @@ inSim <- SpaDES.project::setupProject(
   studyAreaReporting = sa$studyAreaReporting,
   rasterToMatchReporting = sa$rasterToMatchReporting,
   studyAreaPSP = {setupSAandRTM(ecoprovinceNum = studyAreaPSPprov)$studyArea |>
-        terra::aggregate() |>
-        terra::buffer(width = 10000)} |> Cache(),
+      terra::aggregate() |>
+      terra::buffer(width = 10000)} |> Cache(),
   nonForestedLCCGroups = list(
     "nf_dryland" = c(50, 100, 40), # shrub, herbaceous, bryoid
     "nf_wetland" = c(81)), #non-treed wetland.
@@ -108,11 +118,14 @@ inSim <- SpaDES.project::setupProject(
     )
   ),
   params = list(
-    .globals = list(.studyAreaName = currentName,
-                    dataYear = 2011,
-                    .plots = "png",
-                    sppEquivCol = "LandR",
-                    .useCache = c(".inputObjects", "init")),
+    .globals = list(#.studyAreaName = paste(currentName,
+      #                       reproducible::.robustDigest(studyArea),
+      #                       terra::ncell(rasterToMatch), "pix",
+      #                       sep = "_"),
+      dataYear = 2011,
+      .plots = "png",
+      sppEquivCol = "LandR",
+      .useCache = c(".inputObjects", "init")),
     Biomass_borealDataPrep = list(
       overrideAgeInFires = FALSE,
       overrideBiomassInFires = FALSE
@@ -128,27 +141,27 @@ inSim <- SpaDES.project::setupProject(
       ),
       .useCache = FALSE,
       iterStep = 250, # run this many iterations before running again; this should be
-                      # set to itermax if Cache is not used; it is only useful for Cache
+      # set to itermax if Cache is not used; it is only useful for Cache
       cores = "localhost",
-        #  "spades217",
-        #"spades184")#, "spades213")
-        #hosts <-
-        #paste0("spades", c("97", "106", "184", "189", "213", "217", "220")))
-        #c(hosts, "132.156.148.105", "localhost")
+      #  "spades217",
+      #"spades184")#, "spades213")
+      #hosts <-
+      #paste0("spades", c("97", "106", "184", "189", "213", "217", "220")))
+      #c(hosts, "132.156.148.105", "localhost")
       NP = {if (identical(cores, unique(cores))) 100 else length(cores)}, # number of cores of machines
-        # pemisc::makeIpsForNetworkCluster(
-        # ipStart = "10.20.0",
-        # ipEnd = c(97, 184, 189, 213, 220, 217, 106),
-        # availableCores = c(28, 28, 28, 14, 14),
-        # availableRAM = c(500, 500, 500, 250, 250),
-        # localHostEndIp = 189,
-        # proc = "cores",
-        # nProcess = 10,
-        # internalProcesses = 10,
-        # sizeGbEachProcess = 1),
+      # pemisc::makeIpsForNetworkCluster(
+      # ipStart = "10.20.0",
+      # ipEnd = c(97, 184, 189, 213, 220, 217, 106),
+      # availableCores = c(28, 28, 28, 14, 14),
+      # availableRAM = c(500, 500, 500, 250, 250),
+      # localHostEndIp = 189,
+      # proc = "cores",
+      # nProcess = 10,
+      # internalProcesses = 10,
+      # sizeGbEachProcess = 1),
       trace = 1,
-      # mode = c("fit", "visualize"),
-      mode = c("debug"),
+      mode = c("fit", "visualize"),
+      # mode = c("debug"),
       # SNLL_FS_thresh = snll_thresh,
       doObjFunAssertions = FALSE
     ),
@@ -156,7 +169,7 @@ inSim <- SpaDES.project::setupProject(
       spreadFuelClassCol = "fuel",
       ignitionFuelClassCol = "fuel",
       missingLCCgroup = c("nf_dryland"),
-      .useCache = c(".inputObjects", "init", "prepSpreadFitData")
+      .useCache = c(".inputObjects", "init", "prepSpreadFitData", "prepIgnitionFitData")
     ),
     fireSense_IgnitionFit = list(
       rescalers = c("CMDsm" = 1000),
@@ -185,18 +198,41 @@ inSim <- SpaDES.project::setupProject(
 # devtools::install("~/GitHub/fireSenseUtils/", upgrade = FALSE);
 # devtools::install("~/GitHub/clusters/", upgrade = FALSE);
 #
-# pkgload::load_all("~/GitHub/reproducible/");
-# pkgload::load_all("~/GitHub/SpaDES.core/");
+# pkgload::load_all("~/GitHub/LandR/");
 # pkgload::load_all("~/GitHub/climateData/");
-# pkgload::load_all("~/GitHub/fireSenseUtils/");
 # pkgload::load_all("~/GitHub/clusters/");
 # devtools::document("~/GitHub/fireSenseUtils/");
 # clearCache(ask = F)
-outSim <- do.call(what = SpaDES.core::simInitAndSpades, args = inSim)
+# debug(messageDF)
+pkgload::load_all("~/GitHub/reproducible/");
+pkgload::load_all("~/GitHub/SpaDES.core/");
+pkgload::load_all("~/GitHub/fireSenseUtils/");
+# inSim$debug <- quote(
+#   {
+#     b <- if(exists("spreadFirePoints", envir(sim))) {
+#       cli::bg_br_cyan(cli::col_black(paste0(".robustDigest(sim$spreadFirePoints): ", .robustDigest(unlist(.robustDigest(sim$spreadFirePoints))))))
+#     } else {
+#       1
+#     }
+#     b
+#   }
+# )
 
+outSims <- do.call(what = SpaDES.core::simInitAndSpades, args = inSim, quote = TRUE)
+
+if (FALSE) {
+  fn <- "sim_FireSenseSpreadFit.qs"
+  saveState(filename = fn, files = FALSE)
+
+  inSim2 <- SpaDES.core::loadSimList(fn)
+  outSims <- restartSpades(inSim2)
+
+  outSims <- restartSpades()
+}
 
 if (FALSE) {
   pkgload::load_all("~/GitHub/fireSenseUtils/");
   pkgload::load_all("~/GitHub/clusters/");
   SpaDES.core::restartSpades()
 }
+
