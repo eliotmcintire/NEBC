@@ -1,7 +1,11 @@
 .Rproj.user
 cache
 inputs
+<<<<<<< HEAD
 outputs
+=======
+outputs/Taiga
+>>>>>>> 54d6ebb5e983101954a8112e635f4470e321b90b
 .Rhistory
 .Rdata
 .RData
@@ -12,8 +16,11 @@ outputs
 .httr-oauth
 .DS_Store
 .quarto
+<<<<<<< HEAD
 
 *.png
 *.tif
 *.zip
 *.xml
+=======
+>>>>>>> 54d6ebb5e983101954a8112e635f4470e321b90b
